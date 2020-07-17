@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <properties>
+    <property name="PATTERN">%clr{%d{yyyy-MM-dd HH:mm:ss,SSS}}{faint} %clr{[%-5level]}{magenta} %clr{RID=%X{requestId}}{cyan} -- [%thread] %clr{%C}{BG_Green}.%clr{[%M]}{yellow} [%L]: %msg%n</property>
+    <property name="fileDir">/data/log/ws-server</property>
+    <property name="zipFileDir">/data/log/ws-server/history</property>
+  </properties>
+
+  <appenders>
+    <Console name="Console" target="system_out">
+      <PatternLayout pattern="${PATTERN}"/>
+    </Console>
+    <!--base 业务日志-->
+    <RollingRandomAccessFile name="RollingConsoleLogFile"
+      fileName="${fileDir}/ws-server.log"
+      filePattern="${zipFileDir}/ws-server-%d{yyyy-MM-dd}.log.zip">
+      <PatternLayout pattern="${PATTERN}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${zipFileDir}" maxDepth="1">
+          <IfFileName glob="ws-server-*.log.zip" />
+          <IfLastModified age="7d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+    <!--base 请求日志，返回结果-->
+    <RollingRandomAccessFile name="RollingAccessFile"
+      fileName="${fileDir}/ws-server-access.log"
+      filePattern="${zipFileDir}/ws-server-access-%d{yyyy-MM-dd}.log.zip">
+      <PatternLayout pattern="${PATTERN}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${zipFileDir}" maxDepth="1">
+          <IfFileName glob="ws-server-access-*.log.zip" />
+          <IfLastModified age="7d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+    <!--base 和其他系统交互日志-->
+    <RollingRandomAccessFile name="RollingInteractionFile"
+      fileName="${fileDir}/ws-server-interaction.log"
+      filePattern="${zipFileDir}/ws-server-interaction-%d{yyyy-MM-dd}.log.zip">
+      <PatternLayout pattern="${PATTERN}"/>
+      <Policies>
+        <TimeBasedTriggeringPolicy interval="1"/>
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="${zipFileDir}" maxDepth="1">
+          <IfFileName glob="ws-server-interaction-*.log.zip" />
+          <IfLastModified age="7d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingRandomAccessFile>
+  </appenders>
+
+  <loggers>
+    <!--base controller请求日志   eg.#additivity false 中止了log请求向上级传播-->
+    <asyncLogger name="AccessLog" level="info" includeLocation="true" additivity="false">
+      <appenderref ref="Console"/>
+      <appenderref ref="RollingAccessFile"/>
+    </asyncLogger>
+    <!--base controller和其他系统交互日志-->
+    <asyncLogger name="com.nio.uds.common.web.UdsHttpClient" level="info" includeLocation="true" additivity="false">
+      <appenderref ref="Console"/>
+      <appenderref ref="RollingInteractionFile"/>
+    </asyncLogger>
+    <asyncLogger name="InteractionLog" level="info" includeLocation="true" additivity="false">
+      <appenderref ref="Console"/>
+      <appenderref ref="RollingInteractionFile"/>
+    </asyncLogger>
+    <asyncRoot level="INFO" includeLocation="true">
+      <appenderref ref="Console"/>
+      <appenderref ref="RollingConsoleLogFile"/>
+    </asyncRoot>
+  </loggers>
+</configuration>
