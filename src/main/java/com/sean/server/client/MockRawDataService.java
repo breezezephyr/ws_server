@@ -7,6 +7,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.java_websocket.WebSocket;
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.drafts.Draft_6455;
+import org.java_websocket.enums.ReadyState;
 import org.java_websocket.handshake.ServerHandshake;
 import org.springframework.stereotype.Service;
 
@@ -62,7 +63,7 @@ public class MockRawDataService {
         }
 
         client.connect();
-        while (!client.getReadyState().equals(WebSocket.READYSTATE.OPEN)) {
+        while (!client.getReadyState().equals(ReadyState.OPEN)) {
             log.info("正在连接...");
         }
         List<String> strings = fetchJson(path);
